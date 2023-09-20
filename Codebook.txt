@@ -1,0 +1,16 @@
+Name| description | unit | value
+Subject.ID | Id of the patient | ? | ?
+MRI ID | Id of MRI	 | ?  | ?
+Group | Converted / Demented/ Nondemented | ?  | ? 
+Visit | Number of visit		  | ?  | ?
+MR Delay | Delay with MRI |  ?  | ?
+M/F | Gender : Male / Female  | ?  | ?
+Hand | Handedness | ? | ?
+Age  | Age of the subject at time of visit	 | ?  | ? 
+EDUC | Weight of shell  | ?  | ?
+SES | Socioeconomic status |  ? | ?
+MMSE | Mini-Mental State Examination score | ?| ?
+CDR | Clinical Dementia Rating | ? | ?
+eTIV | Estimated total intracranial volume	|? | ?
+nWBV | Normalized whole-brain volume | ? | ?
+ASF | Atlas scaling factor | ? | ?

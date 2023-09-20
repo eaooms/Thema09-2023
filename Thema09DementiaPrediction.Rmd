@@ -1,0 +1,253 @@
+---
+title: "Thema09DementiaPrediction"
+author: "Ewoud"
+date: "2023-09-06"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction 
+
+
+The question this research is aiming to give an answer to is: 
+*How accurate can a machine learning algorithm be, that predicts if a subject has dementia using different clinical parameters?*
+
+Dataset: https://www.kaggle.com/datasets/shashwatwork/dementia-prediction-dataset
+
+
+```{r, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+#These are the packages used in this project, remove the # before the packages if you don’t have this packageon your computer or laptop and want to install them.
+
+#install.packages("ggplot2")
+library(ggplot2)
+
+#install.packages("dplyr")
+library(dplyr)
+
+#install.packages("tidyverse")
+library(tidyverse)
+
+#install.packages('pander')
+library(pander)
+
+#install.packages("data.table")                           
+library(data.table)  
+
+#install.packages("hrbrthemes")
+library(hrbrthemes)
+
+#install.packages("viridis")
+library(viridis)
+
+#install.packages("dplyr")
+library(dplyr)
+
+#install.packages("ggfortify")
+library(ggfortify)
+
+#install.packages("cowplot")
+library(cowplot)
+
+#install.packages("pROC")
+library(pROC)
+
+#install.packages("randomForest")
+library(randomForest)
+
+#install.packages("foreign")
+library(foreign)
+
+#install.packages("sjlabelled")
+library(sjlabelled)
+
+#install.packages("tibble")
+library(tibble)
+
+#install.packages("readxl")
+library(readxl)
+
+#install.packages("rJava")
+#library(rJava)
+```
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+# Data inladen
+Data1 <- read_excel("oasis_longitudinal_demographics.xlsx")
+
+Data2 <- read_excel("Predictions.xlsx")
+```
+
+## Codebook
+
+```{r, echo=FALSE , message=FALSE, warning=FALSE}
+codebook <- enframe(get_label(Data1))
+
+colnames(codebook) <- c("variable_id", "item_text")
+describtion = c("Id of subject","Id of MRI","Converted / Demented/ Nondemented","Number of visit ","Delay with MRI","Gender : Male / Female ","Handedness","Age of the subject at time of visit","Years of education","Socioeconomic status","Mini-Mental State Examination score","Clinical Dementia Rating","Estimated total intracranial volume","Normalized whole-brain volume","Atlas scaling factor")
+codebook$item_text = describtion
+
+codebook
+
+#Codebook
+My_Codebook <- read.table("Codebook.txt", sep ="|",
+                          header = TRUE, dec =".")
+My_Codebook <- data.frame(My_Codebook)
+pander::pander(My_Codebook)
+
+
+```
+
+### Description of some of the rows 
+
+MRI :
+
+SES : Socioeconomic status as assessed by the Hollingshead Index of Social Position and classified into categories from 1 (highest status) to 5 (lowest status)
+
+MMSE : 
+Mini–Mental State Examination (MMSE)
+The Mini–Mental State Examination (MMSE) or Folstein test is a 30-point questionnaire that is used extensively in clinical and research settings to measure cognitive impairment. It is commonly used in medicine and allied health to screen for dementia. It is also used to estimate the severity and progression of cognitive impairment and to follow the course of cognitive changes in an individual over time; thus making it an effective way to document an individual’s response to treatment. The MMSE’s purpose has been not, on its own, to provide a diagnosis for any particular nosological entity.
+
+Interpretations
+
+Any score greater than or equal to 24 points (out of 30) indicates a normal cognition. Below this, scores can indicate severe (≤9 points), moderate (10–18 points) or mild (19–23 points) cognitive impairment. The raw score may also need to be corrected for educational attainment and age. That is, a maximal score of 30 points can never rule out dementia. Low to very low scores correlate closely with the presence of dementia, although other mental disorders can also lead to abnormal findings on MMSE testing. The presence of purely physical problems can also interfere with interpretation if not properly noted; for example, a patient may be physically unable to hear or read instructions properly, or may have a motor deficit that affects writing and drawing skills.
+
+CDR :
+Clinical Dementia Rating (CDR)
+The CDR™ in one aspect is a 5-point scale used to characterize six domains of cognitive and functional performance applicable to Alzheimer disease and related dementias: Memory, Orientation, Judgment & Problem Solving, Community Affairs, Home & Hobbies, and Personal Care. The necessary information to make each rating is obtained through a semi-structured interview of the patient and a reliable informant or collateral source (e.g., family member) referred to as the CDR™ Assessment Protocol.
+
+The CDR™ Scoring Table provides descriptive anchors that guide the clinician in making appropriate ratings based on interview data and clinical judgment. In addition to ratings for each domain, an overall CDR™ score may be calculated through the use of an CDR™ Scoring Algorithm. This score is useful for characterizing and tracking a patient’s level of impairment/dementia:
+
+0 = Normal
+0.5 = Very Mild Dementia
+1 = Mild Dementia
+2 = Moderate Dementia
+3 = Severe Dementia
+
+eTIV: 
+Estimated total intracranial volume (eTIV)
+The ICV measure, sometimes referred to as total intracranial volume (TIV), refers to the estimated volume of the cranial cavity as outlined by the supratentorial dura matter or cerebral contour when dura is not clearly detectable. ICV is often used in studies involved with analysis of the cerebral structure under different imaging modalities, such as Magnetic Resonance (MR), MR and Diffusion Tensor Imaging (DTI), MR and Single-photon Emission Computed Tomography (SPECT), Ultrasound and Computed Tomography (CT). ICV consistency during aging makes it a reliable tool for correction of head size variation across subjects in studies that rely on morphological features of the brain. ICV, along with age and gender are reported as covariates to adjust for regression analyses in investigating progressive neurodegenerative brain disorders, such as Alzheimer’s disease, aging and cognitive impairment. ICV has also been utilized as an independent voxel based morphometric feature to evaluate age-related changes in the structure of premorbid brai, determine characterizing atrophy patterns in subjects with mild cognitive impairment (MCI) and Alzheimer’s disease (AD), delineate structural abnormalities in the white matter (WM) in schizophrenia, epilepsy, and gauge cognitive efficacy.
+
+nWBV : 
+Normalized whole-brain volume, expressed as a percent of all voxels in the atlas-masked image that are labeled as gray or white matter by the automated tissue segmentation process
+
+ASF: 
+Atlas scaling factor (unitless). Computed scaling factor that transforms native-space brain and skull to the atlas target (i.e., the determinant of the transform matrix)
+
+## Cleaning
+First thing to do is to clean the dataset of zero values or outliers that can obstruct this research 
+
+### Missing values
+Lets filter the rows out of the dataset with 0 or na.
+
+```{r}
+Data1_filtered <- Data1 %>% drop_na()
+```
+19 object are filtered 
+
+### finding outliers 
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+summary(Data1_filtered)
+```
+No visible outliers 
+
+
+
+### Remove colums with no meaning 
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+ggplot(data = Data1_filtered, mapping = aes(x=Hand, y= Group)) +
+  geom_boxplot() +
+  ggtitle("A boxplot with Handedness against Dementia status")
+
+Data1_filtered$Hand <- NULL
+```
+When looking at the Handedness parameter we can see that the only variable is R for right handed people, because everybody is right handed we can remove the column 
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+Data1_filtered$`MRI ID` <- NULL
+Data1_filtered$`MR Delay` <- NULL
+```
+removing the MRI id and delay because these are not parameters that have influence on the outcome if a subject has dementia 
+
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+Data1_filtered$CDR <- NULL
+```
+
+CDR is basically a parameter telling if a patient has dementia or not so it will not be taking in for machine learning but testing if algorithm is correct.
+
+
+## Testing the dataset
+
+Second thing to do is to look at the underlying distribution and the variation within the dataset
+
+### equal distribution
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+#mannen en vrouwen 
+p1 <- ggplot(Data1_filtered, aes(`M/F`)) +
+  geom_bar( stat="count") 
+  
+#groepen van dement
+p2 <- ggplot(Data1_filtered, aes(Group)) +
+  geom_histogram( stat="count")
+
+#leedtijd distributie 
+p3 <- ggplot(Data1_filtered, aes(Age)) +
+  geom_histogram( stat="count")
+
+
+title <- ggdraw() + draw_label("Histograms to see distribution", fontface='bold', size = 10)
+plot_1 <- plot_grid(p1,p2,p3, labels = c('A','B','C'), label_size = 10)
+plot_grid(title, plot_1, ncol=1, rel_heights=c(0.1, 1))
+
+```
+
+## Finding correlation 
+
+```{r, echo=FALSE,results='hide', message=FALSE, warning=FALSE}
+p1 <- ggplot(Data1_filtered, aes(x = Group, y= `M/F`)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p2 <- ggplot(Data1_filtered, aes(x = Group, y= Age)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p3 <- ggplot(Data1_filtered, aes(x = Group, y= EDUC)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p4 <- ggplot(Data1_filtered, aes(x = Group, y= SES)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p5 <- ggplot(Data1_filtered, aes(x = Group, y= MMSE)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p6 <- ggplot(Data1_filtered, aes(x = Group, y= eTIV)) +
+  geom_boxplot(alpha = 0.5) 
+  
+p7 <- ggplot(Data1_filtered, aes(x = Group, y= nWBV)) +
+  geom_boxplot(alpha = 0.5) 
+
+p8 <- ggplot(Data1_filtered, aes(x = Group, y= ASF)) +
+  geom_boxplot(alpha = 0.5) 
+  
+
+title <- ggdraw() + draw_label("Box plots of Gender(M/F), Age(years) and EDUC(years) against dementia group *Figure 3*", fontface='bold', size = 10)
+plot_1 <- plot_grid(p1,p2,p3, labels = c('A','B','C'), label_size = 10)
+plot_grid(title, plot_1, ncol=1, rel_heights=c(0.1, 1))
+
+title <- ggdraw() + draw_label("Box plots of SES and MMSE against dementia group *Figure 4*", fontface='bold', size = 10)
+plot_2 <- plot_grid(p4,p5, labels = c('D','E'), label_size = 10)
+plot_grid(title, plot_2, ncol=1, rel_heights=c(0.1, 1))
+
+title <- ggdraw() + draw_label("Box plots of eTIV, nWBV and ASF against dementia group *Figure 5*", fontface='bold', size = 10)
+plot_3 <- plot_grid(p6,p7,p8, labels = c('F','G','H'), label_size = 10)
+plot_grid(title, plot_3, ncol=1, rel_heights=c(0.1, 1))
+
+```
+Waardes die waarschijnlijk van invloed zijn 
+Educatie, SES, MMSE, nWBV, klein beetje eTIV en ASFs
+
