@@ -74,6 +74,16 @@
 \newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
 \newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
 \newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
 \usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
@@ -113,9 +123,21 @@
 \hypertarget{introduction}{%
 \subsection{Introduction}\label{introduction}}
 
+Dementia is a pressing global health concern, with a significant impact
+on individuals, families, and healthcare systems. Timely diagnosis and
+intervention are crucial for improving the quality of life for those
+affected by dementia. Advances in machine learning and healthcare
+technology offer promising opportunities to enhance the accuracy and
+efficiency of dementia diagnosis.
+
 The question this research is aiming to give an answer to is: \emph{How
-accurate can a machine learning algorithm be, that predicts if a subject
-has dementia using different clinical parameters?}
+accurate can a machine learning model be, that predicts if a subject has
+dementia using different clinical parameters?}
+
+Our approach combines machine learning and dementia research to uncover
+hidden patterns in clinical data. We will conduct an Exploratory Data
+Analysis (EDA) to identify correlations with the dementia group,
+assisting in feature selection and model development.
 
 Dataset:
 \url{https://www.kaggle.com/datasets/shashwatwork/dementia-prediction-dataset}
@@ -123,11 +145,78 @@ Dataset:
 \hypertarget{codebook}{%
 \subsection{Codebook}\label{codebook}}
 
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1806}}
+  >{\centering\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.4444}}
+  >{\centering\arraybackslash}p{(\columnwidth - 4\tabcolsep) * \real{0.1667}}@{}}
+\caption{Table continues below}\tabularnewline
+\toprule()
+\begin{minipage}[b]{\linewidth}\centering
+Name
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+type
+\end{minipage} \\
+\midrule()
+\endfirsthead
+\toprule()
+\begin{minipage}[b]{\linewidth}\centering
+Name
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+description
+\end{minipage} & \begin{minipage}[b]{\linewidth}\centering
+type
+\end{minipage} \\
+\midrule()
+\endhead
+Subject.ID & Id of the patient & character \\
+MRI ID & Id of MRI & character \\
+Group & Converted / Demented/ Nondemented & character \\
+Visit & Number of visit & character \\
+MR Delay & Delay with MRI & double \\
+M/F & Gender : Male / Female & character \\
+Hand & Handedness & character \\
+Age & Age of the subject at time of visit & double \\
+EDUC & Years of education & double \\
+SES & Socioeconomic status & double \\
+MMSE & Mini-Mental State Examination score & double \\
+CDR & Clinical Dementia Rating & double \\
+eTIV & Estimated total intracranial volume & double \\
+nWBV & Normalized whole-brain volume & double \\
+ASF & Atlas scaling factor & double \\
+\bottomrule()
+\end{longtable}
+
+\begin{longtable}[]{@{}
+  >{\centering\arraybackslash}p{(\columnwidth - 0\tabcolsep) * \real{0.4583}}@{}}
+\toprule()
+\begin{minipage}[b]{\linewidth}\centering
+value
+\end{minipage} \\
+\midrule()
+\endhead
+OAS2\_0001 - OAS2\_0186 \\
+OAS2\_0001\_MRI1 - OAS2\_0186\_MRI3 \\
+Converted-Demented-Nondemented \\
+1-5 \\
+0-2639 \\
+M-F \\
+R-L \\
+60- 98 \\
+6-23 \\
+1-5 \\
+4-30 \\
+0.0-2.0 \\
+1105-2005 \\
+0.64-0.84 \\
+0.87-1.59 \\
+\bottomrule()
+\end{longtable}
+
 \hypertarget{description-of-some-of-the-rows}{%
 \subsubsection{Description of some of the
 rows}\label{description-of-some-of-the-rows}}
-
-MRI :
 
 SES : Socioeconomic status as assessed by the Hollingshead Index of
 Social Position and classified into categories from 1 (highest status)
@@ -228,27 +317,20 @@ Lets filter the rows out of the dataset with 0 or na.
 \subsubsection{finding outliers}\label{finding-outliers}}
 
 \begin{verbatim}
-##   Subject ID           MRI ID             Group              Visit          
-##  Length:354         Length:354         Length:354         Length:354        
-##  Class :character   Class :character   Class :character   Class :character  
-##  Mode  :character   Mode  :character   Mode  :character   Mode  :character  
-##                                                                             
-##                                                                             
-##                                                                             
-##     MR Delay          M/F                Hand                Age       
-##  Min.   :   0.0   Length:354         Length:354         Min.   :60.00  
-##  1st Qu.:   0.0   Class :character   Class :character   1st Qu.:71.00  
-##  Median : 559.5   Mode  :character   Mode  :character   Median :77.00  
-##  Mean   : 601.4                                         Mean   :77.03  
-##  3rd Qu.: 882.5                                         3rd Qu.:82.00  
-##  Max.   :2639.0                                         Max.   :98.00  
-##       EDUC            SES            MMSE            CDR              eTIV     
-##  Min.   : 6.00   Min.   :1.00   Min.   : 4.00   Min.   :0.0000   Min.   :1106  
-##  1st Qu.:12.00   1st Qu.:2.00   1st Qu.:27.00   1st Qu.:0.0000   1st Qu.:1358  
-##  Median :15.00   Median :2.00   Median :29.00   Median :0.0000   Median :1470  
-##  Mean   :14.70   Mean   :2.46   Mean   :27.41   Mean   :0.2712   Mean   :1490  
-##  3rd Qu.:16.75   3rd Qu.:3.00   3rd Qu.:30.00   3rd Qu.:0.5000   3rd Qu.:1595  
-##  Max.   :23.00   Max.   :5.00   Max.   :30.00   Max.   :2.0000   Max.   :2004  
+##   Subject ID           MRI ID             Group              Visit              MR Delay          M/F           
+##  Length:354         Length:354         Length:354         Length:354         Min.   :   0.0   Length:354        
+##  Class :character   Class :character   Class :character   Class :character   1st Qu.:   0.0   Class :character  
+##  Mode  :character   Mode  :character   Mode  :character   Mode  :character   Median : 559.5   Mode  :character  
+##                                                                              Mean   : 601.4                     
+##                                                                              3rd Qu.: 882.5                     
+##                                                                              Max.   :2639.0                     
+##      Hand                Age             EDUC            SES            MMSE            CDR              eTIV     
+##  Length:354         Min.   :60.00   Min.   : 6.00   Min.   :1.00   Min.   : 4.00   Min.   :0.0000   Min.   :1106  
+##  Class :character   1st Qu.:71.00   1st Qu.:12.00   1st Qu.:2.00   1st Qu.:27.00   1st Qu.:0.0000   1st Qu.:1358  
+##  Mode  :character   Median :77.00   Median :15.00   Median :2.00   Median :29.00   Median :0.0000   Median :1470  
+##                     Mean   :77.03   Mean   :14.70   Mean   :2.46   Mean   :27.41   Mean   :0.2712   Mean   :1490  
+##                     3rd Qu.:82.00   3rd Qu.:16.75   3rd Qu.:3.00   3rd Qu.:30.00   3rd Qu.:0.5000   3rd Qu.:1595  
+##                     Max.   :98.00   Max.   :23.00   Max.   :5.00   Max.   :30.00   Max.   :2.0000   Max.   :2004  
 ##       nWBV             ASF        
 ##  Min.   :0.6444   Min.   :0.8755  
 ##  1st Qu.:0.6987   1st Qu.:1.1002  
@@ -269,12 +351,12 @@ When looking at the Handedness parameter we can see that the only
 variable is R for right handed people, because everybody is right handed
 we can remove the column
 
-removing the MRI id and delay because these are not parameters that have
-influence on the outcome if a subject has dementia
+we can also remove the MRI id and delay because these are not parameters
+that have influence on the outcome if a subject has dementia
 
-CDR is basically a parameter telling if a patient has dementia or not so
-it will not be taking in for machine learning but testing if algorithm
-is correct.
+The CDR is basically a parameter telling if a patient has dementia or
+not so it will not be taking in for machine learning but testing if
+algorithm is correct.
 
 \hypertarget{testing-the-dataset}{%
 \subsection{Testing the dataset}\label{testing-the-dataset}}
@@ -286,14 +368,143 @@ variation within the dataset
 \subsubsection{equal distribution}\label{equal-distribution}}
 
 \includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-9-1.pdf}
+In figure 2 we can see that there is a nice equal distribution of the
+age and gender parameters. In the dementia status group the converted
+group has much less patients then the other two, in this case it doesn't
+really matter because the coverted group are patients that were first
+diagnosed with dementia but with a second test were labeled nondemented.
+so it really is part of the non demented group but is interesting to
+keep apart to see if it will be some kind of middle group
 
-\hypertarget{finding-correlation}{%
-\subsection{Finding correlation}\label{finding-correlation}}
+\hypertarget{finding-variation}{%
+\subsection{Finding variation}\label{finding-variation}}
 
 \includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-10-1.pdf}
 \includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-10-2.pdf}
 \includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-10-3.pdf}
-Waardes die waarschijnlijk van invloed zijn Educatie, SES, MMSE, nWBV,
-klein beetje eTIV en ASFs
+The things to look for in a boxplot is to see if the values of the
+dementia groups are far apart of each other with the parameters, Because
+this means that the influence of the parameters effects the groups
+different and is therefor maybe a good parameters for correlation and
+the machine learning model
+
+The parameters with the most difference are: Educatie, SES, MMSE, nWBV
+These parameters are mostly the ones that are going the be used to make
+a model.
+
+\hypertarget{finding-correlation}{%
+\subsection{Finding correlation}\label{finding-correlation}}
+
+The data that we are using for this project is nominal data so we need
+to do a Anova test
+
+What is a Anova test and what is the eta-sqaured?
+
+An ANOVA (Analysis of Variance) test is used to assess statistical
+differences in means among three or more groups or treatments. This type
+of statistical analysis is suitable in situations where you want to
+investigate whether there are significant differences between groups,
+with the independent variable being a categorical variable (such as
+different groups, categories, or treatments) and the dependent variable
+being a continuous variable (such as measurements, scores, or values).
+
+Eta-squared (η²) is a statistical measure used in the context of
+analysis of variance (ANOVA) to quantify the proportion of variance in a
+dependent variable that is attributed to the effects of an independent
+variable (factor) in an experiment. It is often used to estimate the
+effect size of an independent variable on the dependent variable.
+
+Eta-squared ranges from 0 to 1 and is interpreted as follows:
+
+η² = 0: There is no effect of the independent variable on the dependent
+variable. η² ≈ 0.01: A small effect. η² ≈ 0.06: A medium effect. η² ≈
+0.14: A large effect.
+
+It's important to note that eta-squared indicates the proportion of
+variance in the dependent variable explained by the independent
+variable, but it does not provide information about the direction or
+nature of the effect. For more detailed analyses, it may be useful to
+look at other statistical measures, such as partial eta-squared, which
+takes into account other factors in the model.
+
+\#\#\#\#anova test
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\#omzetten naar nummeric omdat het niet werkt met character }
+\NormalTok{Data1\_filtered}\SpecialCharTok{$}\NormalTok{Group }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"Demented"} \OtherTok{=} \StringTok{"1"}\NormalTok{, }\StringTok{"Converted"} \OtherTok{=} \StringTok{"2"}\NormalTok{, }\StringTok{"Nondemented"} \OtherTok{=} \StringTok{"3"}\NormalTok{)[Data1\_filtered}\SpecialCharTok{$}\NormalTok{Group])}
+\CommentTok{\#Data1\_filtered$\textasciigrave{}M/F\textasciigrave{} \textless{}{-} as.numeric(c("M" = "1", "F" = "2")[Data1\_filtered$\textasciigrave{}M/F\textasciigrave{}])}
+\CommentTok{\#Data1\_filtered$\textasciigrave{}M/F\textasciigrave{} \textless{}{-} as.numeric(c("M" = "1", "F" = "2")[Data1\_filtered$\textasciigrave{}M/F\textasciigrave{}])}
+\NormalTok{Data1\_filtered}\SpecialCharTok{$}\NormalTok{Visit }\OtherTok{\textless{}{-}} \ConstantTok{NULL}
+
+\NormalTok{one.way }\OtherTok{\textless{}{-}} \FunctionTok{aov}\NormalTok{(Group }\SpecialCharTok{\textasciitilde{}}\NormalTok{ Age }\SpecialCharTok{+}\NormalTok{ EDUC }\SpecialCharTok{+}\NormalTok{SES }\SpecialCharTok{+}\NormalTok{ MMSE }\SpecialCharTok{+}\NormalTok{ eTIV }\SpecialCharTok{+}\NormalTok{ nWBV }\SpecialCharTok{+}\NormalTok{ ASF, }\AttributeTok{data =}\NormalTok{ Data1\_filtered)}
+
+\NormalTok{anovatest }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\FunctionTok{unclass}\NormalTok{(}\FunctionTok{etaSquared}\NormalTok{(one.way)), }\AttributeTok{check.names =} \ConstantTok{FALSE}\NormalTok{, }\AttributeTok{stringsAsFactors =} \ConstantTok{FALSE}\NormalTok{)}
+\NormalTok{anovatest }\OtherTok{\textless{}{-}} \FunctionTok{as\_tibble}\NormalTok{(anovatest)}
+\NormalTok{anovanames }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"Age"}\NormalTok{,}\StringTok{"EDUC"}\NormalTok{,}\StringTok{"SES"}\NormalTok{,}\StringTok{"MMSE"}\NormalTok{,}\StringTok{"eTIV"}\NormalTok{,}\StringTok{"nWBV"}\NormalTok{,}\StringTok{"ASF"}\NormalTok{)}
+\NormalTok{anovatest }\OtherTok{\textless{}{-}}\NormalTok{ anovatest }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{mutate}\NormalTok{(}\AttributeTok{varnames =}\NormalTok{ anovanames)}
+
+\FunctionTok{ggplot}\NormalTok{(}\AttributeTok{data=}\NormalTok{anovatest, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x=}\NormalTok{varnames, }\AttributeTok{y=}\NormalTok{ eta.sq, }\AttributeTok{color =}\NormalTok{ varnames)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_bar}\NormalTok{(}\AttributeTok{stat=}\StringTok{"identity"}\NormalTok{, }\AttributeTok{fill =} \StringTok{\textquotesingle{}white\textquotesingle{}}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{ggtitle}\NormalTok{(}\StringTok{"A barplot of the eta squared scores of coherents of the parameters against the dementia status, *figure 6*"}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{size =} \DecValTok{7}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-11-1.pdf}
+The anova test above shows the eta squared score
+
+When looking at the outcome we see that MMSE, nWBV, EDUC and Age have a
+effect on the dementia status. We will be taking these parameters for
+further analysis.
+
+\#\#\#\#heatmap **Uitleg waarom heatmap en veranderen van nominal data
+naar nummeric
+
+In the article of the data set, the converted group is people that were
+identified as demented but a second test confirmed that they were non
+demented so it is a group that swings in the middle. If i want to
+transform the nominal group of demented converted and nondemented to
+numerical i can change it to 1 2 and 3 because there is a relation.
+
+\url{https://www.sciencedirect.com/science/article/pii/S2352914819300917?via\%3Dihub}
+
+Explaining the present MRI sessions categorization based on the current
+CDR (0--2) score and total sessions of non-demented (190), demented
+(146) and converted (37) were evaluated. In particular, some subjects
+treated as demented at initial visit later transformed into the
+non-demented managed by converted type.
+
+With the demented groups now transformed to numerical i can make the
+heatmap.
+
+\begin{verbatim}
+## # A tibble: 64 x 3
+##    varnames variable      cor
+##    <chr>    <chr>       <dbl>
+##  1 Group    Group     1      
+##  2 Group    Age       0.0428 
+##  3 Group    EDUC      0.205  
+##  4 Group    SES      -0.140  
+##  5 Group    MMSE      0.604  
+##  6 Group    eTIV      0.0165 
+##  7 Group    nWBV      0.318  
+##  8 Group    ASF      -0.00761
+##  9 Age      Group     0.0428 
+## 10 Age      Age       1      
+## # i 54 more rows
+\end{verbatim}
+
+\includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-12-1.pdf}
+Wat zegt deze heatmap **
+
+\hypertarget{principal-component-analysis}{%
+\subsection{Principal component
+analysis}\label{principal-component-analysis}}
+
+** Uitleg PCA en waarom
+
+Looking for clusters with a principal component analysis plot using the
+4 most correlated parameters with dementia.
+\includegraphics{Thema09DementiaPrediction_files/figure-latex/unnamed-chunk-13-1.pdf}
 
 \end{document}

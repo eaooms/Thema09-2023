@@ -1,16 +1,16 @@
-Name| description | unit | value
-Subject.ID | Id of the patient | ? | ?
-MRI ID | Id of MRI	 | ?  | ?
-Group | Converted / Demented/ Nondemented | ?  | ? 
-Visit | Number of visit		  | ?  | ?
-MR Delay | Delay with MRI |  ?  | ?
-M/F | Gender : Male / Female  | ?  | ?
-Hand | Handedness | ? | ?
-Age  | Age of the subject at time of visit	 | ?  | ? 
-EDUC | Weight of shell  | ?  | ?
-SES | Socioeconomic status |  ? | ?
-MMSE | Mini-Mental State Examination score | ?| ?
-CDR | Clinical Dementia Rating | ? | ?
-eTIV | Estimated total intracranial volume	|? | ?
-nWBV | Normalized whole-brain volume | ? | ?
-ASF | Atlas scaling factor | ? | ?
+Name| description | type | value
+Subject.ID | Id of the patient | character | OAS2_0001 - OAS2_0186
+MRI ID | Id of MRI	 | character  | OAS2_0001_MRI1 - OAS2_0186_MRI3
+Group | Converted / Demented/ Nondemented | character  | Converted-Demented-Nondemented
+Visit | Number of visit	 | character  | 1-5
+MR Delay | Delay with MRI | double  | 0-2639
+M/F | Gender : Male / Female  | character  | M-F
+Hand | Handedness | character | R-L
+Age  | Age of the subject at time of visit	 | double  | 60- 98
+EDUC | Years of education  | double  | 6-23
+SES | Socioeconomic status |  double | 1-5
+MMSE | Mini-Mental State Examination score | double | 4-30
+CDR | Clinical Dementia Rating | double | 0.0-2.0
+eTIV | Estimated total intracranial volume	| double | 1105-2005
+nWBV | Normalized whole-brain volume | double | 0.64-0.84
+ASF | Atlas scaling factor | double | 0.87-1.59
