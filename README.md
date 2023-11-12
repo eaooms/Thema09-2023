@@ -53,10 +53,3 @@ java -jar WekaRunner.jar -v 28
 ## Important Notes
 - Ensure that the dataset follows the '.arff' format.
 - The MMSE score must be a numeric value between 1 and 30.
-
-## License
-This project is licensed under the [MIT License](LICENSE).
-
----
-
-Feel free to add more sections or details based on your project's needs. Let me know if you have any specific information you'd like to include!
