@@ -16,7 +16,7 @@ Make sure you have the following installed on your system:
 To analyze a dataset and get the number of "Demented" and "Non-demented" cases, use the following command:
 
 ```bash
-java -jar WekaRunner.jar -f <path-to-dataset-file>
+java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -f <path-to-dataset-file>
 ```
 
 Ensure that the dataset file has a '.arff' extension.
@@ -25,7 +25,7 @@ Ensure that the dataset file has a '.arff' extension.
 To make predictions for a single instance based on the MMSE score, use the following command:
 
 ```bash
-java -jar WekaRunner.jar -v <MMSE-score>
+java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -v <MMSE-score>
 ```
 
 Make sure to replace `<MMSE-score>` with the actual MMSE score you want to predict.
@@ -41,13 +41,13 @@ Make sure to replace `<MMSE-score>` with the actual MMSE score you want to predi
 ### Analyzing a Dataset
 
 ```bash
-java -jar WekaRunner.jar -f data/dataset.arff
+java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -f DataGuess.arff
 ```
 
 ### Making Predictions for Single Instance
 
 ```bash
-java -jar WekaRunner.jar -v 28
+java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -v 28
 ```
 
 ## Important Notes
