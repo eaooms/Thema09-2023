@@ -13,7 +13,8 @@ Make sure you have the following installed on your system:
 ## Usage
 
 ### Analyzing a Dataset
-To analyze a dataset and get the number of "Demented" and "Non-demented" cases, use the following command:
+To analyze a dataset and get the number of "Demented" and "Non-demented" cases. This file must include the following attributes: MMSE score and Group (that can be empty).
+Use the following command:
 
 ```bash
 java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -f <path-to-dataset-file>
