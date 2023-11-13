@@ -53,3 +53,11 @@ java -jar WekaAplicatie-1.0-SNAPSHOT-all.jar -v 28
 ## Important Notes
 - Ensure that the dataset follows the '.arff' format.
 - The MMSE score must be a numeric value between 1 and 30.
+
+## RStudio_files
+Thema09DementiaPrediction.docx is the document were u will find the EDA steps of this project for cleaning the dataset.
+
+## Support
+
+for any reported issues or help: e.a.ooms@st.hanze.nl
+
