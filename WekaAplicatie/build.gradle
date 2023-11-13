@@ -1,0 +1,42 @@
+plugins {
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
+    id 'java'
+}
+
+sourceCompatibility = JavaVersion.VERSION_16
+group 'nl.bioinf.WekaAplicatie'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+compileJava {
+    sourceCompatibility = 14 //
+    targetCompatibility = 14 //
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/nz.ac.waikato.cms.weka/weka-stable
+    implementation group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version: '3.8.0'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.1'
+    implementation 'commons-cli:commons-cli:1.6.0'
+}
+
+jar {
+    manifest {
+        attributes (
+                "Main-Class": "nl.bioinf.WekaRunner"
+        )
+    }
+}
+
+shadowJar {
+    manifest {
+        attributes(
+                'Main-Class': 'nl.bioinf.WekaRunner'
+        )
+    }
+}
+
+targetCompatibility = JavaVersion.VERSION_16

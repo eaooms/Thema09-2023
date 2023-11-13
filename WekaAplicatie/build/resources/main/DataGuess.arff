@@ -1,0 +1,24 @@
+@relation Data_ConToNon-weka.filters.supervised.instance.Resample-B0.0-S1-Z5.0
+
+@attribute MMSE numeric
+@attribute Group {Nondemented,Demented}
+
+@data
+30,?
+30,?
+26,?
+29,?
+29,?
+28,?
+28,?
+30,?
+30,?
+30,?
+30,?
+22,?
+26,?
+29,?
+26,?
+21,?
+16,?
+30,?
